@@ -1,3 +1,5 @@
+require('../node_modules/dialog-polyfill/dialog-polyfill.css');
+
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import App from './App.vue'
@@ -11,6 +13,9 @@ Vue.config.productionTip = false;
 
 const routes = [
     { path: '/', component: MainComponent },
+    { path: '/cfbTab', component: MainComponent },
+    { path: '/nflTab', component: MainComponent },
+    { path: '/otherTab', component: MainComponent },
     { path: '/new', component: EventEntry }
 ];
 

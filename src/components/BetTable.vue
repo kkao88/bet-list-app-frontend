@@ -11,7 +11,13 @@
         <tbody>
         <template v-for="betEvent in eventArray">
             <tr class="bet-date-row">
-                <td colspan="3">{{betEvent.dateTime | displayDate}}</td>
+                <td colspan="3">
+                    {{betEvent.dateTime | displayDate}}
+                    <span class="remove-event-button" v-if="isAdmin" @click="$emit('remove-event', betEvent.id, eventType)">
+                            <i class="material-icons remove-icon"
+                                            >clear</i>
+                    </span>
+                </td>
             </tr>
             <tr>
                 <td>{{betEvent.awayTeam}}
@@ -22,7 +28,8 @@
                 </td>
                 <td>{{betEvent.line}}</td>
                 <td>O {{betEvent.total}}
-                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored"
+                    <button v-if="betEvent.total"
+                            class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored"
                             @click="$emit('add-bettor-to-event', 'over', betEvent)">
                         <i class="material-icons">add</i>
                     </button>
@@ -37,7 +44,8 @@
                 </td>
                 <td>{{betEvent.line | reverseLine}}</td>
                 <td>U {{betEvent.total}}
-                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored"
+                    <button  v-if="betEvent.total"
+                            class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored"
                             @click="$emit('add-bettor-to-event', 'under', betEvent)">
                         <i class="material-icons">add</i>
                     </button>
@@ -89,8 +97,9 @@
             eventType: String,
             eventArray: Array,
             userName: String,
-            dialog: HTMLDialogElement,
-            testParentCallback: Function
+            dialog: null, //HTMLDialogElement
+            testParentCallback: Function,
+            isAdmin: null
         },
         filters: {
             displayDate: function (date) {
@@ -192,5 +201,10 @@
 
     .remove-icon {
         cursor: pointer;
+    }
+
+    .remove-event-button {
+        clear:both;
+        float: right;
     }
 </style>

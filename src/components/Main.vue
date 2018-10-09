@@ -6,17 +6,19 @@
        @click="showModalDialog">Change name</button>
     <div class="mdl-tabs mdl-js-tabs">
       <div class="mdl-tabs__tab-bar">
-        <a href="#nflTab" class="mdl-tabs__tab">NFL</a>
-        <a href="#cfbTab" class="mdl-tabs__tab">CFB</a>
-        <a href="#otherTab" class="mdl-tabs__tab">Other</a>
+        <a href="#nflTab" id="nflTabLink" class="mdl-tabs__tab">NFL</a>
+        <a href="#cfbTab" id="cfbTabLink" ref="cfbTab" class="mdl-tabs__tab">CFB</a>
+        <a href="#otherTab" id="otherTabLink" class="mdl-tabs__tab">Other</a>
       </div>
       <div class="mdl-tabs__panel is-active" id="nflTab">
         <bet-table :event-array="nflEvents" event-type="NFL" :user-name="userName" :dialog="dialog"
-                   v-on:add-bettor-to-event="addBettorToEvent"></bet-table>
+                   v-on:add-bettor-to-event="addBettorToEvent" :is-admin="isAdmin"
+                    v-on:remove-event="removeEvent"></bet-table>
       </div>
       <div id="cfbTab" class="mdl-tabs__panel">
         <bet-table :event-array="cfbEvents" event-type="CFB" :user-name="userName" :dialog="dialog"
-                   v-on:add-bettor-to-event="addBettorToEvent"></bet-table>
+                   v-on:add-bettor-to-event="addBettorToEvent" :is-admin="isAdmin"
+                    v-on:remove-event="removeEvent"></bet-table>
       </div>
       <div id="otherTab" class="mdl-tabs__panel">
 
@@ -42,6 +44,8 @@
 <script>
   import {AXIOS} from '../config/http-commons';
   import BetTable from './BetTable.vue'
+  import dialogPolyfill from 'dialog-polyfill';
+  import _ from 'lodash';
 
   export default {
     name: 'Main',
@@ -57,7 +61,8 @@
             cfbEvents: [],
             otherEvents: [],
             userName: '',
-            dialog: null
+            dialog: null,
+            isAdmin: false
         }
     },
     mounted () {
@@ -69,7 +74,14 @@
             .get(`${process.env.VUE_APP_API_URL}/events?type=CFB`)
             .then(response => (this.cfbEvents = response.data));
 
+        this.isAdmin = this.$route.query.isAdmin;
+        console.log('route', this.$route);
+        if (_.includes(this.$route.path, 'cfbTab')){
+            this.$refs.cfbTab.click();
+        }
+
         this.dialog = document.querySelector('dialog');
+        dialogPolyfill.registerDialog(this.dialog);
 
         if (localStorage.userName) {
             this.userName = localStorage.userName;
@@ -90,7 +102,7 @@
               if (betType === 'home'){
                   if (!betEvent.homeTeamBettors.includes(this.userName)){
                       let userName = this.userName;
-                      AXIOS.post(`h${process.env.VUE_APP_API_URL}/event/${betEvent.id}/home`, {
+                      AXIOS.post(`${process.env.VUE_APP_API_URL}/event/${betEvent.id}/home`, {
                           name: userName
                       })
                           .then(function () {
@@ -148,6 +160,24 @@
       },
       showModalDialog: function(){
           this.dialog.showModal();
+      },
+      removeEvent: function(id, eventType){
+          let that = this;
+          AXIOS.delete(`${process.env.VUE_APP_API_URL}/event/${id}`)
+              .then(function () {
+                  if (eventType === 'NFL'){
+                      that.nflEvents = that.nflEvents.filter(event => event.id !== id);
+                  }
+                  else if (eventType === 'CFB'){
+                      that.cfbEvents = that.cfbEvents.filter(event => event.id !== id);
+                  }
+                  else {
+                      that.otherEvents = that.otherEvents.filter(event => event.id !== id);
+                  }
+              })
+              .catch(function (error) {
+                  console.error(error);
+              });
       }
     },
     watch: {
