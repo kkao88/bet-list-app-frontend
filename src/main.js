@@ -2,21 +2,25 @@ require('../node_modules/dialog-polyfill/dialog-polyfill.css');
 
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import VueMaterial from 'vue-material'
+import 'vue-material/dist/vue-material.min.css';
 import App from './App.vue'
 
 import MainComponent from './components/Main.vue';
 import EventEntry from './components/EventEntry.vue';
 
 Vue.use(VueRouter);
+Vue.use(VueMaterial);
 
 Vue.config.productionTip = false;
 
 const routes = [
     { path: '/', component: MainComponent },
-    { path: '/cfbTab', component: MainComponent },
-    { path: '/nflTab', component: MainComponent },
-    { path: '/otherTab', component: MainComponent },
-    { path: '/new', component: EventEntry }
+    { path: '/cfbTab', name: 'cfbTab', component: MainComponent },
+    { path: '/nflTab', name: 'nflTab', component: MainComponent },
+    { path: '/otherTab', name: 'otherTab', component: MainComponent },
+    { path: '/new', name: 'new', component: EventEntry },
+    { path: '/edit/:id', name: 'edit', component: EventEntry }
 ];
 
 const router = new VueRouter({

@@ -1,89 +1,95 @@
 <template>
-
-    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-        <thead>
-        <tr>
-            <th>Team</th>
-            <th>Line</th>
-            <th>O/U</th>
-        </tr>
-        </thead>
-        <tbody>
-        <template v-for="betEvent in eventArray">
-            <tr class="bet-date-row">
-                <td colspan="3">
-                    {{betEvent.dateTime | displayDate}}
-                    <span class="remove-event-button" v-if="isAdmin" @click="$emit('remove-event', betEvent.id, eventType)">
+    <div>
+        <md-switch v-model="displayOnlyGamesWithBettors" class="display-switch">
+            Display only games with Bettors</md-switch>
+        <md-table>
+            <thead>
+            <md-table-row>
+                <md-table-head>Team</md-table-head>
+                <md-table-head>Line</md-table-head>
+                <md-table-head>O/U</md-table-head>
+            </md-table-row>
+            </thead>
+            <tbody>
+            <template v-for="betEvent in eventArray" v-if="shouldShowEvent(betEvent)">
+                <md-table-row class="bet-date-row">
+                    <md-table-cell colspan="3">
+                        {{betEvent.dateTime | displayDate}}
+                        <span class="remove-event-button" v-if="isAdmin" @click="$emit('remove-event', betEvent.id, eventType)">
                             <i class="material-icons remove-icon"
-                                            >clear</i>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td>{{betEvent.awayTeam}}
-                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored"
-                            @click="$emit('add-bettor-to-event', 'away', betEvent)">
-                        <i class="material-icons">add</i>
-                    </button>
-                </td>
-                <td>{{betEvent.line}}</td>
-                <td>O {{betEvent.total}}
-                    <button v-if="betEvent.total"
-                            class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored"
-                            @click="$emit('add-bettor-to-event', 'over', betEvent)">
-                        <i class="material-icons">add</i>
-                    </button>
-                </td>
-            </tr>
-            <tr>
-                <td>{{betEvent.homeTeam}}
-                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored"
-                            @click="$emit('add-bettor-to-event', 'home', betEvent)">
-                        <i class="material-icons">add</i>
-                    </button>
-                </td>
-                <td>{{betEvent.line | reverseLine}}</td>
-                <td>U {{betEvent.total}}
-                    <button  v-if="betEvent.total"
-                            class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored"
-                            @click="$emit('add-bettor-to-event', 'under', betEvent)">
-                        <i class="material-icons">add</i>
-                    </button>
-                </td>
-            </tr>
-            <tr v-if="areThereAnyBettors(betEvent)">
-                <td colspan="3">
-                    <span v-if="betEvent.awayTeamBettors.length">{{betEvent.awayTeam}}: </span>
-                    <span v-for="bettor in betEvent.awayTeamBettors">
+                            >clear</i>
+                        </span>
+                        <router-link v-if="isAdmin" :to="`/edit/${betEvent.id}`">Edit</router-link>
+                    </md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                    <md-table-cell class="team-table-cell">
+                        <md-button class="md-icon-button md-dense md-raised md-primary"
+                                   @click="$emit('add-bettor-to-event', 'away', betEvent)">
+                            <md-icon>add</md-icon>
+                        </md-button>
+                        <span class="table-text-display">{{betEvent.awayTeam}}</span>
+                    </md-table-cell>
+                    <md-table-cell>{{betEvent.line}}</md-table-cell>
+                    <md-table-cell class="team-table-cell">
+                        <span class="table-text-display">O {{betEvent.total}}</span>
+                        <md-button  v-if="betEvent.total" class="md-icon-button md-dense md-raised md-primary"
+                                    @click="$emit('add-bettor-to-event', 'over', betEvent)">
+                            <md-icon>add</md-icon>
+                        </md-button>
+                    </md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                    <md-table-cell class="team-table-cell">
+                        <md-button class="md-icon-button md-dense md-raised md-primary"
+                                   @click="$emit('add-bettor-to-event', 'home', betEvent)">
+                            <md-icon>add</md-icon>
+                        </md-button>
+                        <span class="table-text-display">{{betEvent.homeTeam}}</span>
+                    </md-table-cell>
+                    <md-table-cell>{{betEvent.line | reverseLine}}</md-table-cell>
+                    <md-table-cell class="team-table-cell">
+                        <span class="table-text-display">U {{betEvent.total}}</span>
+                        <md-button  v-if="betEvent.total" class="md-icon-button md-dense md-raised md-primary"
+                                    @click="$emit('add-bettor-to-event', 'under', betEvent)">
+                            <md-icon>add</md-icon>
+                        </md-button>
+                    </md-table-cell>
+                </md-table-row>
+                <md-table-row v-if="areThereAnyBettors(betEvent)">
+                    <md-table-cell colspan="3">
+                        <span v-if="betEvent.awayTeamBettors.length">{{betEvent.awayTeam}}: </span>
+                        <span v-for="bettor in betEvent.awayTeamBettors">
                             {{ bettor }} <i class="material-icons remove-icon"
                                             @click="removeBettorFromEvent(betEvent.id, 'away', eventType, bettor)">clear</i>
                     </span>
-                    <br v-if="shouldBreakAfterAway(betEvent)"/>
-                    <span v-if="betEvent.homeTeamBettors.length">{{betEvent.homeTeam}}: </span>
-                    <span v-for="bettor in betEvent.homeTeamBettors">
+                        <br v-if="shouldBreakAfterAway(betEvent)"/>
+                        <span v-if="betEvent.homeTeamBettors.length">{{betEvent.homeTeam}}: </span>
+                        <span v-for="bettor in betEvent.homeTeamBettors">
                             {{ bettor }} <i class="material-icons remove-icon"
                                             @click="removeBettorFromEvent(betEvent.id, 'home', eventType, bettor)">clear</i>
                     </span>
-                    <br v-if="shouldBreakAfterHome(betEvent)"/>
-                    <span v-if="betEvent.overBettors.length">Over {{betEvent.total}}: </span>
-                    <span v-for="bettor in betEvent.overBettors">
+                        <br v-if="shouldBreakAfterHome(betEvent)"/>
+                        <span v-if="betEvent.overBettors.length">Over {{betEvent.total}}: </span>
+                        <span v-for="bettor in betEvent.overBettors">
                             {{ bettor }} <i class="material-icons remove-icon"
                                             @click="removeBettorFromEvent(betEvent.id, 'over', eventType, bettor)">clear</i>
                     </span>
-                    <br v-if="shouldBreakAfterOver(betEvent)"/>
-                    <span v-if="betEvent.underBettors.length">Under {{betEvent.total}}: </span>
-                    <span v-for="bettor in betEvent.underBettors">
+                        <br v-if="shouldBreakAfterOver(betEvent)"/>
+                        <span v-if="betEvent.underBettors.length">Under {{betEvent.total}}: </span>
+                        <span v-for="bettor in betEvent.underBettors">
                             {{ bettor }} <i class="material-icons remove-icon"
                                             @click="removeBettorFromEvent(betEvent.id, 'under', eventType, bettor)">clear</i>
                     </span>
-                </td>
+                    </md-table-cell>
 
-            </tr>
-        </template>
+                </md-table-row>
+            </template>
 
-        </tbody>
+            </tbody>
 
-    </table>
+        </md-table>
+    </div>
 </template>
 
 <script>
@@ -101,12 +107,16 @@
             testParentCallback: Function,
             isAdmin: null
         },
+        data: () => ({
+            displayOnlyGamesWithBettors: false
+        }),
         filters: {
             displayDate: function (date) {
                 return moment(date).format('ddd MMM D h:mm a');
             },
             reverseLine: function (line) {
-                return -parseFloat(line);
+                let reversed = -parseFloat(line);
+                return reversed > 0 ? '+'+reversed : reversed;
             }
         },
         methods: {
@@ -185,17 +195,35 @@
             },
             shouldBreakAfterOver: function (betEvent) {
                 return _.size(betEvent.overBettors) && _.size(betEvent.underBettors);
+            },
+            shouldShowEvent: function (betEvent) {
+                if (!this.displayOnlyGamesWithBettors){
+                    return true;
+                }
+                else {
+                    return this.areThereAnyBettors(betEvent);
+                }
             }
         }
     }
 </script>
 <style lang="scss">
-    .mdl-data-table tbody tr.bet-date-row {
+    tr.bet-date-row {
         background-color: #ccc;
-        height: 24px;
 
         td {
             text-align: center;
+        }
+    }
+
+    .team-table-cell {
+        .md-table-cell-container {
+            display: flex;
+
+            .table-text-display {
+                display: inline-flex;
+                align-items: center;
+            }
         }
     }
 
@@ -206,5 +234,9 @@
     .remove-event-button {
         clear:both;
         float: right;
+    }
+
+    .display-switch {
+        margin-left: 15px;
     }
 </style>

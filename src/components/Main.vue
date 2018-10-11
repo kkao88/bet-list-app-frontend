@@ -1,30 +1,29 @@
 <template>
   <div>
-    <span>Hi, {{userName}}</span>&nbsp;
-    <button type="button"
-       class="mdl-button mdl-js-button mdl-button--raised"
-       @click="showModalDialog">Change name</button>
-    <div class="mdl-tabs mdl-js-tabs">
-      <div class="mdl-tabs__tab-bar">
-        <a href="#nflTab" id="nflTabLink" class="mdl-tabs__tab">NFL</a>
-        <a href="#cfbTab" id="cfbTabLink" ref="cfbTab" class="mdl-tabs__tab">CFB</a>
-        <a href="#otherTab" id="otherTabLink" class="mdl-tabs__tab">Other</a>
-      </div>
-      <div class="mdl-tabs__panel is-active" id="nflTab">
-        <bet-table :event-array="nflEvents" event-type="NFL" :user-name="userName" :dialog="dialog"
-                   v-on:add-bettor-to-event="addBettorToEvent" :is-admin="isAdmin"
-                    v-on:remove-event="removeEvent"></bet-table>
-      </div>
-      <div id="cfbTab" class="mdl-tabs__panel">
-        <bet-table :event-array="cfbEvents" event-type="CFB" :user-name="userName" :dialog="dialog"
-                   v-on:add-bettor-to-event="addBettorToEvent" :is-admin="isAdmin"
-                    v-on:remove-event="removeEvent"></bet-table>
-      </div>
-      <div id="otherTab" class="mdl-tabs__panel">
-
-      </div>
-
-    </div>
+    <span class="greeting">Hi, {{userName}}</span>&nbsp;
+    <md-button type="button"
+               class="md-raised"
+       @click="showModalDialog">Change name</md-button>
+    <md-tabs class="md-accent" md-alignment="centered">
+      <md-tab id="tab-nfl" md-label="NFL" to="/nflTab"></md-tab>
+      <md-tab id="tab-cfb" md-label="CFB" to="/cfbTab"></md-tab>
+      <md-tab id="tab-other" md-label="Other" to="/otherTab"></md-tab>
+    </md-tabs>
+    <bet-table :event-array="nflEvents" event-type="NFL" :user-name="userName" :dialog="dialog"
+               v-on:add-bettor-to-event="addBettorToEvent" :is-admin="isAdmin"
+               v-on:remove-event="removeEvent"
+               v-show="tabToShow === 'nflTab'"
+    ></bet-table>
+    <bet-table :event-array="cfbEvents" event-type="CFB" :user-name="userName" :dialog="dialog"
+               v-on:add-bettor-to-event="addBettorToEvent" :is-admin="isAdmin"
+               v-on:remove-event="removeEvent"
+               v-show="tabToShow === 'cfbTab'"
+    ></bet-table>
+    <bet-table :event-array="otherEvents" event-type="Other" :user-name="userName" :dialog="dialog"
+               v-on:add-bettor-to-event="addBettorToEvent" :is-admin="isAdmin"
+               v-on:remove-event="removeEvent"
+               v-show="tabToShow === 'otherTab'"
+    ></bet-table>
     <dialog class="mdl-dialog">
       <h4 class="mdl-dialog__title">What is your name?</h4>
       <div class="mdl-dialog__content">
@@ -62,7 +61,8 @@
             otherEvents: [],
             userName: '',
             dialog: null,
-            isAdmin: false
+            isAdmin: false,
+            tabToShow: 'nflTab'
         }
     },
     mounted () {
@@ -75,9 +75,9 @@
             .then(response => (this.cfbEvents = response.data));
 
         this.isAdmin = this.$route.query.isAdmin;
-        console.log('route', this.$route);
-        if (_.includes(this.$route.path, 'cfbTab')){
-            this.$refs.cfbTab.click();
+
+        if (this.$route.name) {
+            this.tabToShow = this.$route.name;
         }
 
         this.dialog = document.querySelector('dialog');
@@ -183,10 +183,17 @@
     watch: {
         userName(newName) {
             localStorage.userName = newName;
+        },
+        $route (to){
+            this.tabToShow = to.name;
         }
     }
   }
 </script>
 
 <style lang="scss">
+  .greeting {
+    top: 15px;
+    position: relative;
+  }
 </style>
