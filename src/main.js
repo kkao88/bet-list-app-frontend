@@ -8,6 +8,7 @@ import App from './App.vue'
 
 import MainComponent from './components/Main.vue';
 import EventEntry from './components/EventEntry.vue';
+import MassEventEntry from './components/MassEventEntry.vue';
 
 Vue.use(VueRouter);
 Vue.use(VueMaterial);
@@ -20,7 +21,8 @@ const routes = [
     { path: '/nflTab', name: 'nflTab', component: MainComponent },
     { path: '/otherTab', name: 'otherTab', component: MainComponent },
     { path: '/new', name: 'new', component: EventEntry },
-    { path: '/edit/:id', name: 'edit', component: EventEntry }
+    { path: '/edit/:id', name: 'edit', component: EventEntry },
+    { path: '/massEventEntry', name: 'massEventEntry', component: MassEventEntry },
 ];
 
 const router = new VueRouter({
