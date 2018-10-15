@@ -13,16 +13,19 @@
                v-on:add-bettor-to-event="addBettorToEvent" :is-admin="isAdmin"
                v-on:remove-event="removeEvent"
                v-show="tabToShow === 'nflTab'"
+               :is-loading="isLoadingNFL"
     ></bet-table>
     <bet-table :event-array="cfbEvents" event-type="CFB" :user-name="userName" :dialog="dialog"
                v-on:add-bettor-to-event="addBettorToEvent" :is-admin="isAdmin"
                v-on:remove-event="removeEvent"
                v-show="tabToShow === 'cfbTab'"
+               :is-loading="isLoadingCFB"
     ></bet-table>
     <bet-table :event-array="otherEvents" event-type="Other" :user-name="userName" :dialog="dialog"
                v-on:add-bettor-to-event="addBettorToEvent" :is-admin="isAdmin"
                v-on:remove-event="removeEvent"
                v-show="tabToShow === 'otherTab'"
+               :is-loading="isLoadingOther"
     ></bet-table>
     <dialog class="mdl-dialog">
       <h4 class="mdl-dialog__title">What is your name?</h4>
@@ -62,17 +65,33 @@
             userName: '',
             dialog: null,
             isAdmin: false,
-            tabToShow: 'nflTab'
+            tabToShow: 'nflTab',
+            isLoadingNFL: true,
+            isLoadingCFB: true,
+            isLoadingOther: true
         }
     },
     mounted () {
         AXIOS
             .get(`${process.env.VUE_APP_API_URL}/events?type=NFL`)
-            .then(response => (this.nflEvents = response.data));
+            .then(response => {
+                this.nflEvents = response.data;
+                this.isLoadingNFL = false;
+            });
 
         AXIOS
             .get(`${process.env.VUE_APP_API_URL}/events?type=CFB`)
-            .then(response => (this.cfbEvents = response.data));
+            .then(response => {
+                this.cfbEvents = response.data;
+                this.isLoadingCFB = false;
+            });
+
+        AXIOS
+            .get(`${process.env.VUE_APP_API_URL}/events?type=Other`)
+            .then(response => {
+                this.otherEvents = response.data;
+                this.isLoadingOther = false;
+            });
 
         this.isAdmin = this.$route.query.isAdmin;
 

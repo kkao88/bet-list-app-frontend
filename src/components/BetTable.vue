@@ -2,7 +2,10 @@
     <div>
         <md-switch v-model="displayOnlyGamesWithBettors" class="display-switch">
             Display only games with Bettors</md-switch>
-        <md-table>
+        <br v-if="isLoading" />
+        <img src="../assets/Spinner-1s-200px.gif" v-if="isLoading">
+        <p v-if="!isLoading && !eventArray.length">There are no games to display</p>
+        <md-table v-if="eventArray.length">
             <thead>
             <md-table-row>
                 <md-table-head>Team</md-table-head>
@@ -105,7 +108,8 @@
             userName: String,
             dialog: null, //HTMLDialogElement
             testParentCallback: Function,
-            isAdmin: null
+            isAdmin: null,
+            isLoading: Boolean
         },
         data: () => ({
             displayOnlyGamesWithBettors: false
