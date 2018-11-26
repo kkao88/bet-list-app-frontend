@@ -3,6 +3,8 @@ require('../node_modules/dialog-polyfill/dialog-polyfill.css');
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import VueMaterial from 'vue-material'
+import VueClipboard from 'vue-clipboard2'
+import Toasted from 'vue-toasted'
 import 'vue-material/dist/vue-material.min.css';
 import App from './App.vue'
 
@@ -12,6 +14,8 @@ import MassEventEntry from './components/MassEventEntry.vue';
 
 Vue.use(VueRouter);
 Vue.use(VueMaterial);
+Vue.use(VueClipboard);
+Vue.use(Toasted);
 
 Vue.config.productionTip = false;
 

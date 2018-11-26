@@ -140,7 +140,9 @@
 
                 AXIOS.put(`${process.env.VUE_APP_API_URL}/event`, this.form)
                     .then(function () {
-                        //that.showSnackbar = true; //this is broken
+                        that.$toasted.show('Submitted', {
+                            position: 'bottom-center',
+                        }).goAway(2500);
                         that.form.awayTeam = '';
                         that.form.homeTeam = '';
                         that.form.line = '';

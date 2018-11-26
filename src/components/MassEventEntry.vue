@@ -19,6 +19,9 @@
         <md-button class="md-raised md-primary" @click="submitForm">
             Submit
         </md-button>
+        <md-button to="/" class="md-accent">
+            Home
+        </md-button>
     </div>
 </template>
 <script>
@@ -45,6 +48,9 @@
                 AXIOS.post(`${process.env.VUE_APP_API_URL}/massEntry/${that.type}?date=${moment(that.date).format('MM DD YYYY')}`, that.text)
                     .then(function () {
                         that.text = '';
+                        that.$toasted.show('Submitted', {
+                            position: 'bottom-center',
+                        }).goAway(2500);
                     })
                     .catch(function (error) {
                         console.error(error);
